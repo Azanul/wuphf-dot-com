@@ -108,7 +108,8 @@ func (h *Handler) Login(w http.ResponseWriter, req *http.Request) {
 		email := req.FormValue("email")
 		password := req.FormValue("password")
 		if m, err = h.ctrl.Login(ctx, email, password); err == nil {
-			w.WriteHeader(http.StatusCreated)
+			w.Header().Add("AUTHORIZATION", "")
+			w.WriteHeader(http.StatusOK)
 		}
 	}
 
