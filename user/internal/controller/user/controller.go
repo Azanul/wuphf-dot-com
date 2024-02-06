@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"wuphf.com/user/internal/repository"
+	"wuphf.com/user/pkg/auth"
 	"wuphf.com/user/pkg/model"
 )
 
@@ -48,4 +49,31 @@ func (c *Controller) Get(ctx context.Context, id string) (*model.User, error) {
 		return nil, repository.ErrNotFound
 	}
 	return res, err
+}
+
+// Log new user
+func (c *Controller) Login(ctx context.Context, email, password string) (string, error) {
+	id, err := c.repo.GetIDbyEmail(ctx, email)
+	if err != nil {
+		return "", repository.ErrNotFound
+	}
+
+	user, err := c.repo.Get(ctx, id)
+	if err != nil {
+		return "", err
+	}
+	hashed_password, err := model.HashPassword(password)
+	if err != nil {
+		return "", err
+	}
+	if user.Password == hashed_password {
+		return "", repository.ErrInvalidCredentials
+	}
+
+	token, err := auth.GenerateToken(id)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }

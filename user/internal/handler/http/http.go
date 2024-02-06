@@ -63,3 +63,69 @@ func (h *Handler) User(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 }
+
+// Login handles POST /register requests.
+func (h *Handler) Register(w http.ResponseWriter, req *http.Request) {
+	var err error
+	var m any
+	ctx := req.Context()
+
+	switch req.Method {
+	case http.MethodPost:
+		email := req.FormValue("email")
+		password := req.FormValue("password")
+		if m, err = h.ctrl.Post(ctx, email, password); err == nil {
+			w.WriteHeader(http.StatusCreated)
+		}
+	}
+
+	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			w.WriteHeader(http.StatusNotFound)
+		} else if errors.Is(err, repository.ErrDuplicate) {
+			m = "user already exists"
+			w.WriteHeader(http.StatusBadRequest)
+		} else {
+			log.Printf("Repository get error: %v\n", err)
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+	}
+	if m != nil && !(reflect.ValueOf(m).Kind() == reflect.Ptr && reflect.ValueOf(m).IsNil()) && m != "" {
+		if err := json.NewEncoder(w).Encode(m); err != nil {
+			log.Printf("Response encode error: %v\n", err)
+		}
+	}
+}
+
+// Login handles POST /login requests.
+func (h *Handler) Login(w http.ResponseWriter, req *http.Request) {
+	var err error
+	var m any
+	ctx := req.Context()
+
+	switch req.Method {
+	case http.MethodPost:
+		email := req.FormValue("email")
+		password := req.FormValue("password")
+		if m, err = h.ctrl.Login(ctx, email, password); err == nil {
+			w.WriteHeader(http.StatusCreated)
+		}
+	}
+
+	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			w.WriteHeader(http.StatusNotFound)
+		} else if errors.Is(err, repository.ErrDuplicate) {
+			m = "user already exists"
+			w.WriteHeader(http.StatusBadRequest)
+		} else {
+			log.Printf("Repository get error: %v\n", err)
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+	}
+	if m != nil && !(reflect.ValueOf(m).Kind() == reflect.Ptr && reflect.ValueOf(m).IsNil()) && m != "" {
+		if err := json.NewEncoder(w).Encode(m); err != nil {
+			log.Printf("Response encode error: %v\n", err)
+		}
+	}
+}

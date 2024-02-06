@@ -17,6 +17,8 @@ func main() {
 
 	// Endpoints
 	http.Handle("/user", http.HandlerFunc(h.User))
+	http.Handle("/register", http.HandlerFunc(h.Register))
+	http.Handle("/login", http.HandlerFunc(h.Login))
 
 	if err := http.ListenAndServe(":8081", nil); err != nil {
 		panic(err)
