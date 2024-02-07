@@ -11,7 +11,7 @@ import (
 
 const ID_LENGTH = 64
 
-// Repository defines a memory notification repository.
+// Repository defines a memory notification repository
 type Repository struct {
 	sync.RWMutex
 	data map[string][]*model.Notification

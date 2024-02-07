@@ -15,12 +15,12 @@ type userRepository interface {
 	GetIDbyEmail(ctx context.Context, email string) (string, error)
 }
 
-// Controller defines a user service controller.
+// Controller defines a user service controller
 type Controller struct {
 	repo userRepository
 }
 
-// New creates a user service controller.
+// New creates a user service controller
 func New(repo userRepository) *Controller {
 	return &Controller{repo}
 }
@@ -42,7 +42,7 @@ func (c *Controller) Post(ctx context.Context, email, password string) (string, 
 	return user.ID, err
 }
 
-// Get returns user by id.
+// Get returns user by id
 func (c *Controller) Get(ctx context.Context, id string) (*model.User, error) {
 	res, err := c.repo.Get(ctx, id)
 	if err != nil && errors.Is(err, repository.ErrNotFound) {

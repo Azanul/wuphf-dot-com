@@ -11,17 +11,17 @@ import (
 	"wuphf.com/notification/internal/repository"
 )
 
-// Handler defines a notification HTTP handler.
+// Handler defines a notification HTTP handler
 type Handler struct {
 	ctrl *notification.Controller
 }
 
-// New creates a new notification HTTP handler.
+// New creates a new notification HTTP handler
 func New(ctrl *notification.Controller) *Handler {
 	return &Handler{ctrl}
 }
 
-// Notify handles POST and GET /notification requests.
+// Notify handles POST and GET /notification requests
 func (h *Handler) Notification(w http.ResponseWriter, req *http.Request) {
 	var err error
 	var m any
@@ -60,7 +60,7 @@ func (h *Handler) Notification(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// History handles GET /history requests.
+// History handles GET /history requests
 func (h *Handler) History(w http.ResponseWriter, req *http.Request) {
 	var err error
 	var m any

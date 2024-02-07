@@ -19,12 +19,12 @@ type notificationRepository interface {
 	List(ctx context.Context, chatId string) ([]*model.Notification, error)
 }
 
-// Controller defines a notification service controller.
+// Controller defines a notification service controller
 type Controller struct {
 	repo notificationRepository
 }
 
-// New creates a notification service controller.
+// New creates a notification service controller
 func New(repo notificationRepository) *Controller {
 	return &Controller{repo}
 }
@@ -52,7 +52,7 @@ func (c *Controller) Get(ctx context.Context, id string) (*model.Notification, e
 	return res, err
 }
 
-// List returns list of notifications by ids of participants.
+// List returns list of notifications by ids of participants
 func (c *Controller) List(ctx context.Context, chatId string) ([]*model.Notification, error) {
 	res, err := c.repo.List(ctx, chatId)
 	if err != nil && errors.Is(err, repository.ErrNotFound) {

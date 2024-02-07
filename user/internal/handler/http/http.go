@@ -11,17 +11,17 @@ import (
 	"wuphf.com/user/internal/repository"
 )
 
-// Handler defines a user HTTP handler.
+// Handler defines a user HTTP handler
 type Handler struct {
 	ctrl *user.Controller
 }
 
-// New creates a new user HTTP handler.
+// New creates a new user HTTP handler
 func New(ctrl *user.Controller) *Handler {
 	return &Handler{ctrl}
 }
 
-// User handles POST and GET /user requests.
+// User handles POST and GET /user requests
 func (h *Handler) User(w http.ResponseWriter, req *http.Request) {
 	var err error
 	var m any
@@ -64,7 +64,7 @@ func (h *Handler) User(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// Login handles POST /register requests.
+// Login handles POST /register requests
 func (h *Handler) Register(w http.ResponseWriter, req *http.Request) {
 	var err error
 	var m any
@@ -97,7 +97,7 @@ func (h *Handler) Register(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-// Login handles POST /login requests.
+// Login handles POST /login requests
 func (h *Handler) Login(w http.ResponseWriter, req *http.Request) {
 	var err error
 	var m any

@@ -8,7 +8,7 @@ import (
 	"wuphf.com/user/pkg/model"
 )
 
-// Repository defines a memory user repository.
+// Repository defines a memory user repository
 type Repository struct {
 	sync.RWMutex
 	data     map[string]*model.User
