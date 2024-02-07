@@ -1,0 +1,22 @@
+syntax = "proto3";
+option go_package = "/gen";
+
+package auth;
+
+message User {
+    string id = 1;
+    string email = 2;
+}
+
+service AuthService {
+    rpc ValidateToken(TokenRequest) returns (TokenResponse);
+}
+
+message TokenRequest {
+    string token = 1;
+}
+
+message TokenResponse {
+    bool valid = 1;
+    User user = 2;
+}

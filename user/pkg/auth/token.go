@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	jwtKey = []byte("your-secret-key")
+	JWTKey = []byte("your-secret-key")
 )
 
 // Claims defines the JWT claims structure
@@ -31,7 +31,7 @@ func GenerateToken(userID string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString(jwtKey)
+	tokenString, err := token.SignedString(JWTKey)
 	if err != nil {
 		return "", err
 	}
