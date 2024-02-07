@@ -11,12 +11,13 @@ import (
 
 // Handler defines a user gRPC handler
 type Handler struct {
+	gen.UnimplementedAuthServiceServer
 	ctrl *user.Controller
 }
 
 // New creates a new user gRPC handler
 func New(ctrl *user.Controller) *Handler {
-	return &Handler{ctrl}
+	return &Handler{ctrl: ctrl}
 }
 
 // ValidateToken validates a JWT token
