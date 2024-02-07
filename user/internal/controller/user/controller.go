@@ -51,7 +51,7 @@ func (c *Controller) Get(ctx context.Context, id string) (*model.User, error) {
 	return res, err
 }
 
-// Log new user
+// Login new user
 func (c *Controller) Login(ctx context.Context, email, password string) (string, error) {
 	id, err := c.repo.GetIDbyEmail(ctx, email)
 	if err != nil {
