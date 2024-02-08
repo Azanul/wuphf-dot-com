@@ -107,8 +107,9 @@ func (h *Handler) Login(w http.ResponseWriter, req *http.Request) {
 	case http.MethodPost:
 		email := req.FormValue("email")
 		password := req.FormValue("password")
-		if m, err = h.ctrl.Login(ctx, email, password); err == nil {
-			w.Header().Add("AUTHORIZATION", "")
+		m, err = h.ctrl.Login(ctx, email, password)
+		if err == nil {
+			w.Header().Add("AUTHORIZATION", m.(string))
 			w.WriteHeader(http.StatusOK)
 		}
 	}

@@ -12,7 +12,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"wuphf.com/user/gen"
 	"wuphf.com/user/pkg/model"
@@ -85,6 +84,7 @@ func (gateway *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if route.match(r.URL.Path) {
 			user, err := gateway.authenticate(r)
 			if err != nil {
+				log.Println("Error authenticating:", err)
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return
 			}
@@ -99,13 +99,7 @@ func (gateway *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // authenticate performs authentication using gRPC metadata
 func (gateway *Gateway) authenticate(r *http.Request) (*model.User, error) {
-	// Extract user credentials from gRPC metadata
-	md, ok := metadata.FromIncomingContext(r.Context())
-	if !ok {
-		return nil, ErrNoMetadata
-	}
-	token := md.Get("authorization")[0]
-
+	token := r.Header.Get("Authorization")
 	return gateway.ValidateToken(r.Context(), token)
 }
 
@@ -130,7 +124,10 @@ func (gateway *Gateway) ValidateToken(ctx context.Context, token string) (*model
 			}
 			return nil, err
 		}
-		return model.UserFromProto(resp.User), nil
+		if resp.GetValid() {
+			return model.UserFromProto(resp.GetUser()), nil
+		}
+		return nil, ErrUnauthorized
 	}
 	return nil, errors.New("maximum retry attempts reached")
 }

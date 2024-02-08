@@ -36,7 +36,7 @@ func (h *Handler) ValidateToken(ctx context.Context, req *gen.TokenRequest) (*ge
 
 	if token.Valid {
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
-			userID := claims["userID"].(string)
+			userID := claims["user_id"].(string)
 
 			user, err := h.ctrl.Get(ctx, userID)
 			if err != nil {
