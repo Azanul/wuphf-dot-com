@@ -29,14 +29,16 @@ func main() {
 	}
 	srv := grpc.NewServer()
 	gen.RegisterAuthServiceServer(srv, g)
-	if err := srv.Serve(lis); err != nil {
-		log.Fatal("Failed to start the gRPC server:", err)
-	}
+	go func() {
+		if err := srv.Serve(lis); err != nil {
+			log.Fatal("Failed to start the gRPC server:", err)
+		}
+	}()
 
 	// Endpoints
 	http.Handle("/user", http.HandlerFunc(h.User))
-	http.Handle("/register", http.HandlerFunc(h.Register))
-	http.Handle("/login", http.HandlerFunc(h.Login))
+	http.Handle("/auth/register", http.HandlerFunc(h.Register))
+	http.Handle("/auth/login", http.HandlerFunc(h.Login))
 
 	if err := http.ListenAndServe(":8081", nil); err != nil {
 		panic(err)
