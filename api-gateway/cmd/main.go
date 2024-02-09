@@ -3,12 +3,15 @@ package main
 import (
 	"context"
 	"errors"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"strings"
+	"time"
 
+	"github.com/IBM/sarama"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
@@ -23,15 +26,44 @@ var userString customString = "user"
 
 var (
 	ErrNoMetadata   = errors.New("no metadata found in context")
-	ErrUnauthorized = errors.New("unauthorized")
+	ErrInvalidToken = errors.New("invalid token")
 )
 
 // Route represents a route configuration
 type Route struct {
-	Path         string
-	BackendURL   string
-	ReverseProxy *httputil.ReverseProxy
-	match        func(string) bool
+	Path       string
+	BackendURL string
+	Handler    RouteHandler
+	match      func(string) bool
+}
+
+type RouteHandler interface {
+	ServeHTTP(rw http.ResponseWriter, req *http.Request)
+}
+
+// KafkaMessageProducer represents a Kafka message producer handler
+type KafkaMessageProducer struct {
+	KafkaTopic string
+	Producer   sarama.AsyncProducer
+}
+
+func (kafkaProducer *KafkaMessageProducer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Failed to read request body", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	message := &sarama.ProducerMessage{
+		Topic: kafkaProducer.KafkaTopic,
+		Value: sarama.StringEncoder(body),
+	}
+
+	kafkaProducer.Producer.Input() <- message
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Message produced successfully"))
 }
 
 // Gateway represents the API gateway
@@ -51,22 +83,17 @@ func NewGateway(authServiceAddr string) *Gateway {
 }
 
 // AddRoute adds a route to the gateway
-func (gateway *Gateway) AddRoute(path, backendURL string, cmp func(string, string) bool, secure bool) {
-	backend, err := url.Parse(backendURL)
-	if err != nil {
-		log.Fatalf("Failed to parse backend URL: %s", err)
-	}
-	proxy := httputil.NewSingleHostReverseProxy(backend)
+func (gateway *Gateway) AddRoute(path, backendURL string, cmp func(string, string) bool, secure bool, handler RouteHandler) {
 	route := &Route{
-		Path:         path,
-		BackendURL:   backendURL,
-		ReverseProxy: proxy,
+		Path:       path,
+		BackendURL: backendURL,
+		Handler:    handler,
 		match: func(url string) bool {
 			return cmp(url, path)
 		},
 	}
 	if secure {
-		gateway.SecureRoutes = append(gateway.Routes, route)
+		gateway.SecureRoutes = append(gateway.SecureRoutes, route)
 	} else {
 		gateway.Routes = append(gateway.Routes, route)
 	}
@@ -76,7 +103,7 @@ func (gateway *Gateway) AddRoute(path, backendURL string, cmp func(string, strin
 func (gateway *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for _, route := range gateway.Routes {
 		if route.match(r.URL.Path) {
-			route.ReverseProxy.ServeHTTP(w, r)
+			route.Handler.ServeHTTP(w, r)
 			return
 		}
 	}
@@ -90,7 +117,7 @@ func (gateway *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 			ctx := context.WithValue(r.Context(), userString, user)
 			r = r.WithContext(ctx)
-			route.ReverseProxy.ServeHTTP(w, r)
+			route.Handler.ServeHTTP(w, r)
 			return
 		}
 	}
@@ -127,7 +154,7 @@ func (gateway *Gateway) ValidateToken(ctx context.Context, token string) (*model
 		if resp.GetValid() {
 			return model.UserFromProto(resp.GetUser()), nil
 		}
-		return nil, ErrUnauthorized
+		return nil, ErrInvalidToken
 	}
 	return nil, errors.New("maximum retry attempts reached")
 }
@@ -147,11 +174,34 @@ func main() {
 	authService := "localhost:50051"
 	gateway := NewGateway(authService)
 
+	// Kafka producer setup
+	kafkaConfig := sarama.NewConfig()
+	kafkaConfig.Producer.RequiredAcks = sarama.WaitForLocal       // Only wait for the leader to acknowledge the record
+	kafkaConfig.Producer.Compression = sarama.CompressionSnappy   // Compress messages
+	kafkaConfig.Producer.Flush.Frequency = 100 * time.Millisecond // Flush batches every 500ms
+	kafkaProducer, err := sarama.NewAsyncProducer([]string{"localhost:9092"}, kafkaConfig)
+	if err != nil {
+		log.Fatalf("Failed to start Kafka producer: %v", err)
+	}
+	defer func() {
+		if err := kafkaProducer.Close(); err != nil {
+			log.Fatalf("Error closing Kafka producer: %v", err)
+		}
+	}()
+
 	// Routes
-	gateway.AddRoute("/user", userService, strings.EqualFold, false)
-	gateway.AddRoute("/auth", userService, strings.HasPrefix, false)
-	gateway.AddRoute("/notification", notificationService, strings.EqualFold, true)
+	gateway.AddRoute("/user", userService, strings.EqualFold, false, httputil.NewSingleHostReverseProxy(MustParse(userService)))
+	gateway.AddRoute("/auth", userService, strings.HasPrefix, false, httputil.NewSingleHostReverseProxy(MustParse(userService)))
+	gateway.AddRoute("/notification", notificationService, strings.EqualFold, true, &KafkaMessageProducer{KafkaTopic: "notifications", Producer: kafkaProducer})
 
 	http.Handle("/", gateway)
 	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+func MustParse(backendURL string) *url.URL {
+	backend, err := url.Parse(backendURL)
+	if err != nil {
+		log.Fatalf("Failed to parse backend URL: %s", err)
+	}
+	return backend
 }

@@ -1,8 +1,8 @@
 package model
 
 type Notification struct {
-	Sender   string `json:"from"`
-	Receiver string `json:"to"`
+	Sender   string `json:"sender"`
+	Receiver string `json:"receiver"`
 	Msg      string `json:"msg"`
 }
 
