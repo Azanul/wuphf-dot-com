@@ -48,7 +48,6 @@ func main() {
 		for {
 			select {
 			case msg := <-partitionConsumer.Messages():
-				log.Printf("Received message: %s\n", msg.Value)
 				n, err := parseMultipartFormData(msg.Value)
 				if err == nil {
 					id, err := ctrl.Post(context.TODO(), n["sender"], n["receiver"], n["msg"])
