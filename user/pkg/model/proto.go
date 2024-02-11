@@ -1,7 +1,7 @@
 package model
 
 import (
-	"wuphf.com/user/gen"
+	"github.com/Azanul/wuphf-dot-com/user/gen"
 )
 
 // MetadataToProto converts a User struct into a generated proto counterpart.

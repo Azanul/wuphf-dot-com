@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"reflect"
 
-	"wuphf.com/notification/internal/controller/notification"
-	"wuphf.com/notification/internal/repository"
+	"github.com/Azanul/wuphf-dot-com/notification/internal/controller/notification"
+	"github.com/Azanul/wuphf-dot-com/notification/internal/repository"
 )
 
 // Handler defines a notification HTTP handler

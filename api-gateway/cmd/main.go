@@ -11,13 +11,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Azanul/wuphf-dot-com/user/gen"
+	"github.com/Azanul/wuphf-dot-com/user/pkg/model"
+
 	"github.com/IBM/sarama"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
-	"wuphf.com/user/gen"
-	"wuphf.com/user/pkg/model"
 )
 
 type customString string

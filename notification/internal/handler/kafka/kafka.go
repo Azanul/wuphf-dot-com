@@ -9,8 +9,9 @@ import (
 	"mime"
 	"mime/multipart"
 
+	"github.com/Azanul/wuphf-dot-com/notification/internal/controller/notification"
+
 	"github.com/IBM/sarama"
-	"wuphf.com/notification/internal/controller/notification"
 )
 
 // Handler defines a notification Kafka message handler

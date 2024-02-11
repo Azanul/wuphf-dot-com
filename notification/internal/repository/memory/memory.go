@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"sync"
 
-	"wuphf.com/notification/internal/repository"
-	"wuphf.com/notification/pkg/model"
+	"github.com/Azanul/wuphf-dot-com/notification/internal/repository"
+	"github.com/Azanul/wuphf-dot-com/notification/pkg/model"
 )
 
 const ID_LENGTH = 64

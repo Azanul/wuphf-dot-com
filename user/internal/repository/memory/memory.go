@@ -4,8 +4,8 @@ import (
 	"context"
 	"sync"
 
-	"wuphf.com/user/internal/repository"
-	"wuphf.com/user/pkg/model"
+	"github.com/Azanul/wuphf-dot-com/user/internal/repository"
+	"github.com/Azanul/wuphf-dot-com/user/pkg/model"
 )
 
 // Repository defines a memory user repository

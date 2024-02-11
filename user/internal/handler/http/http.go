@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"reflect"
 
-	"wuphf.com/user/internal/controller/user"
-	"wuphf.com/user/internal/repository"
+	"github.com/Azanul/wuphf-dot-com/user/internal/controller/user"
+	"github.com/Azanul/wuphf-dot-com/user/internal/repository"
 )
 
 // Handler defines a user HTTP handler

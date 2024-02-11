@@ -3,10 +3,11 @@ package auth
 import (
 	"context"
 
+	"github.com/Azanul/wuphf-dot-com/user/gen"
+	"github.com/Azanul/wuphf-dot-com/user/internal/controller/user"
+	"github.com/Azanul/wuphf-dot-com/user/pkg/auth"
+
 	"github.com/dgrijalva/jwt-go"
-	"wuphf.com/user/gen"
-	"wuphf.com/user/internal/controller/user"
-	"wuphf.com/user/pkg/auth"
 )
 
 // Handler defines a user gRPC handler

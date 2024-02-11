@@ -5,11 +5,12 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Azanul/wuphf-dot-com/notification/internal/controller/notification"
+	httphandler "github.com/Azanul/wuphf-dot-com/notification/internal/handler/http"
+	"github.com/Azanul/wuphf-dot-com/notification/internal/handler/kafka"
+	"github.com/Azanul/wuphf-dot-com/notification/internal/repository/memory"
+
 	"github.com/IBM/sarama"
-	"wuphf.com/notification/internal/controller/notification"
-	httphandler "wuphf.com/notification/internal/handler/http"
-	"wuphf.com/notification/internal/handler/kafka"
-	"wuphf.com/notification/internal/repository/memory"
 )
 
 func main() {

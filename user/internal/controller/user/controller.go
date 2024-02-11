@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"wuphf.com/user/internal/repository"
-	"wuphf.com/user/pkg/auth"
-	"wuphf.com/user/pkg/model"
+	"github.com/Azanul/wuphf-dot-com/user/internal/repository"
+	"github.com/Azanul/wuphf-dot-com/user/pkg/auth"
+	"github.com/Azanul/wuphf-dot-com/user/pkg/model"
 )
 
 type userRepository interface {

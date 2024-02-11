@@ -6,13 +6,14 @@ import (
 	"net"
 	"net/http"
 
-	"google.golang.org/grpc"
-	"wuphf.com/user/gen"
-	"wuphf.com/user/internal/controller/user"
-	grpchandler "wuphf.com/user/internal/handler/grpc"
-	httphandler "wuphf.com/user/internal/handler/http"
+	"github.com/Azanul/wuphf-dot-com/user/gen"
+	"github.com/Azanul/wuphf-dot-com/user/internal/controller/user"
+	grpchandler "github.com/Azanul/wuphf-dot-com/user/internal/handler/grpc"
+	httphandler "github.com/Azanul/wuphf-dot-com/user/internal/handler/http"
 
-	"wuphf.com/user/internal/repository/memory"
+	"google.golang.org/grpc"
+
+	"github.com/Azanul/wuphf-dot-com/user/internal/repository/memory"
 )
 
 func main() {
