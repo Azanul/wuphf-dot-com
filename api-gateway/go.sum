@@ -1,3 +1,5 @@
+github.com/Azanul/wuphf-dot-com/user v0.0.0-20240211154327-2427126e53d0 h1:osn3cPdtk7deLwurTUcTxIZeTvZTleJCrSMAZDlz0JE=
+github.com/Azanul/wuphf-dot-com/user v0.0.0-20240211154327-2427126e53d0/go.mod h1:YL+0o+ETib9LEhSmG1tN3l8Ov9pP+a+LC3g/Bb4IDwg=
 github.com/IBM/sarama v1.42.2 h1:VoY4hVIZ+WQJ8G9KNY/SQlWguBQXQ9uvFPOnrcu8hEw=
 github.com/IBM/sarama v1.42.2/go.mod h1:FLPGUGwYqEs62hq2bVG6Io2+5n+pS6s/WOXVKWSLFtE=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

@@ -3,6 +3,7 @@ module github.com/Azanul/wuphf-dot-com/api-gateway
 go 1.21.3
 
 require (
+	github.com/Azanul/wuphf-dot-com/user v0.0.0-20240211154327-2427126e53d0
 	github.com/IBM/sarama v1.42.2
 	google.golang.org/grpc v1.61.0
 )
