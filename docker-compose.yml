@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - user-service
+
+  user-service:
+    build: ./user
+    ports:
+      - "5000:5000"
+
+  notification-service:
+    build: ./notification
+    depends_on:
+      - user-service
