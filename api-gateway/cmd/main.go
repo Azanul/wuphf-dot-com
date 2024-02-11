@@ -60,6 +60,7 @@ func (kafkaProducer *KafkaMessageProducer) ServeHTTP(w http.ResponseWriter, r *h
 		Value: sarama.StringEncoder(body),
 	}
 
+	kafkaProducer.Producer.BeginTxn()
 	kafkaProducer.Producer.Input() <- message
 
 	w.WriteHeader(http.StatusOK)
@@ -176,9 +177,10 @@ func main() {
 
 	// Kafka producer setup
 	kafkaConfig := sarama.NewConfig()
-	kafkaConfig.Producer.RequiredAcks = sarama.WaitForLocal       // Only wait for the leader to acknowledge the record
+	kafkaConfig.Producer.RequiredAcks = sarama.WaitForAll         // Wait for all replicas to acknowledge the record
 	kafkaConfig.Producer.Compression = sarama.CompressionSnappy   // Compress messages
-	kafkaConfig.Producer.Flush.Frequency = 100 * time.Millisecond // Flush batches every 500ms
+	kafkaConfig.Producer.Flush.Frequency = 100 * time.Millisecond // Flush batches every 100ms
+	kafkaConfig.Producer.Idempotent = true                        // Idempotent producer
 	kafkaProducer, err := sarama.NewAsyncProducer([]string{"localhost:9092"}, kafkaConfig)
 	if err != nil {
 		log.Fatalf("Failed to start Kafka producer: %v", err)
