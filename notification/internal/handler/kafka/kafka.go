@@ -27,8 +27,8 @@ func (c Handler) Setup(_ sarama.ConsumerGroupSession) error   { return nil }
 func (c Handler) Cleanup(_ sarama.ConsumerGroupSession) error { return nil }
 func (c Handler) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for msg := range claim.Messages() {
-		log.Printf("Message topic:%q partition:%d offset:%d\n", msg.Topic, msg.Partition, msg.Offset)
-
+		sess.MarkMessage(msg, "")
+		sess.Commit()
 		n, err := parseMultipartFormData(msg.Value)
 		if err == nil {
 			id, err := c.ctrl.Post(context.TODO(), n["sender"], n["receiver"], n["msg"])
@@ -40,8 +40,6 @@ func (c Handler) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.Con
 		} else {
 			log.Printf("Error unmarshaling message: %v\n", err)
 		}
-
-		sess.MarkMessage(msg, "")
 	}
 	return nil
 }
