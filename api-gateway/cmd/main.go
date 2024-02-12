@@ -182,10 +182,12 @@ func main() {
 	kafkaConfig.Producer.Compression = sarama.CompressionSnappy   // Compress messages
 	kafkaConfig.Producer.Flush.Frequency = 100 * time.Millisecond // Flush batches every 100ms
 	kafkaConfig.Producer.Idempotent = true                        // Idempotent producer
-	kafkaProducer, err := sarama.NewAsyncProducer([]string{"localhost:9092"}, kafkaConfig)
+	kafkaConfig.Net.MaxOpenRequests = 1                           // Only one outstanding request
+	kafkaProducer, err := sarama.NewAsyncProducer([]string{"kafka:9092"}, kafkaConfig)
 	if err != nil {
 		log.Fatalf("Failed to start Kafka producer: %v", err)
 	}
+	log.Println("Kafka async producer started")
 	defer func() {
 		if err := kafkaProducer.Close(); err != nil {
 			log.Fatalf("Error closing Kafka producer: %v", err)
