@@ -183,7 +183,7 @@ func main() {
 	kafkaConfig.Producer.Flush.Frequency = 100 * time.Millisecond // Flush batches every 100ms
 	kafkaConfig.Producer.Idempotent = true                        // Idempotent producer
 	kafkaConfig.Net.MaxOpenRequests = 1                           // Only one outstanding request
-	kafkaProducer, err := sarama.NewAsyncProducer([]string{"kafka:9092"}, kafkaConfig)
+	kafkaProducer, err := sarama.NewAsyncProducer([]string{"10.105.147.53:9092"}, kafkaConfig)
 	if err != nil {
 		log.Fatalf("Failed to start Kafka producer: %v", err)
 	}
