@@ -18,6 +18,17 @@ Wuphf.com 2.0 is a microservice-based architecture leveraging the power of:
 
 Each service runs independently within its own container and communicates through gRPC and HTTP protocols. This modular approach ensures scalability, maintainability, and resilience.
 
+### Progress
+- [X] User Service
+- [X] Notification Service
+- [X] API Gateway
+- [X] Docker Integration
+- [X] K8s Integration
+- [ ] Helm Chart
+- [ ] CI
+- [ ] Web UI
+- [ ] React Native UI
+
 ### Technologies Used:
 
 - **Go:** The backend language, known for its speed, efficiency, and growing popularity.
