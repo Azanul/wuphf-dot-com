@@ -24,7 +24,7 @@ func main() {
 		ctx := context.Background()
 		config := sarama.NewConfig()
 		config.Consumer.IsolationLevel = sarama.ReadCommitted
-		consumerGroup, err := sarama.NewConsumerGroup([]string{"10.105.147.53:9092"}, "notification_consumer_group", config)
+		consumerGroup, err := sarama.NewConsumerGroup([]string{"kkafka:9092"}, "notification_consumer_group", config)
 		if err != nil {
 			log.Fatalf("Error creating Kafka consumer group: %v", err)
 		}
