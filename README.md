@@ -25,6 +25,7 @@ Each service runs independently within its own container and communicates throug
 - [X] Docker Integration
 - [X] K8s Integration
 - [ ] Helm Chart
+- [ ] Istio
 - [ ] CI
 - [ ] Web UI
 - [ ] React Native UI
