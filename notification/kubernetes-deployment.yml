@@ -17,7 +17,10 @@ spec:
         image: wuphf-dot-com-notification-service:local
         imagePullPolicy: IfNotPresent
         ports:
-          - containerPort: 8082
+        - containerPort: 8082
+        env:
+        - name: KAFKA_BROKERS
+          value: "kkafka:9092"
 
 ---
 apiVersion: v1

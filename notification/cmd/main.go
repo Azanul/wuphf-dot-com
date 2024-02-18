@@ -4,6 +4,8 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
+	"strings"
 
 	"github.com/Azanul/wuphf-dot-com/notification/internal/controller/notification"
 	httphandler "github.com/Azanul/wuphf-dot-com/notification/internal/handler/http"
@@ -14,6 +16,8 @@ import (
 )
 
 func main() {
+	kafkaBrokers := os.Getenv("KAFKA_BROKERS")
+
 	log.Println("Starting the notification service")
 	repo := memory.New()
 	ctrl := notification.New(repo)
@@ -24,7 +28,7 @@ func main() {
 		ctx := context.Background()
 		config := sarama.NewConfig()
 		config.Consumer.IsolationLevel = sarama.ReadCommitted
-		consumerGroup, err := sarama.NewConsumerGroup([]string{"kkafka:9092"}, "notification_consumer_group", config)
+		consumerGroup, err := sarama.NewConsumerGroup(strings.Split(kafkaBrokers, ","), "notification_consumer_group", config)
 		if err != nil {
 			log.Fatalf("Error creating Kafka consumer group: %v", err)
 		}

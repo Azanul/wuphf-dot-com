@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -171,9 +172,10 @@ func shouldRetry(err error) bool {
 }
 
 func main() {
-	userService := "http://localhost:8081"
-	notificationService := "http://localhost:8082"
-	authService := "localhost:50051"
+	userService := os.Getenv("USER_SERVICE_URL")
+	notificationService := os.Getenv("NOTIFICATION_SERVICE_URL")
+	authService := os.Getenv("AUTH_SERVICE_ADDR")
+	kafkaBrokers := os.Getenv("KAFKA_BROKERS")
 	gateway := NewGateway(authService)
 
 	// Kafka producer setup
@@ -183,7 +185,7 @@ func main() {
 	kafkaConfig.Producer.Flush.Frequency = 100 * time.Millisecond // Flush batches every 100ms
 	kafkaConfig.Producer.Idempotent = true                        // Idempotent producer
 	kafkaConfig.Net.MaxOpenRequests = 1                           // Only one outstanding request
-	kafkaProducer, err := sarama.NewAsyncProducer([]string{"kkafka:9092"}, kafkaConfig)
+	kafkaProducer, err := sarama.NewAsyncProducer(strings.Split(kafkaBrokers, ","), kafkaConfig)
 	if err != nil {
 		log.Fatalf("Failed to start Kafka producer: %v", err)
 	}

@@ -17,7 +17,17 @@ spec:
         image: wuphf-dot-com-api-gateway:local
         imagePullPolicy: IfNotPresent
         ports:
-          - containerPort: 8080
+        - containerPort: 8080
+        env:
+        - name: USER_SERVICE_URL
+          value: "user:8081"
+        - name: NOTIFICATION_SERVICE_URL
+          value: "notification:8082"
+        - name: AUTH_SERVICE_ADDR
+          value: "user:50051"
+        - name: KAFKA_BROKERS
+          value: "kkafka:9092"
+
 ---
 apiVersion: v1
 kind: Service
