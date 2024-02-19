@@ -1,0 +1,231 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wupfh-config
+data:
+  KAFKA_BROKERS: "kkafka:9092"
+  USER_SERVICE_URL: "user:8081"
+  NOTIFICATION_SERVICE_URL: "notification:8082"
+  AUTH_SERVICE_ADDR: "user:50051"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user
+  template:
+    metadata:
+      labels:
+        app: user
+    spec:
+      containers:
+      - name: user
+        image: wuphf-dot-com-user-service:local
+        imagePullPolicy: Never
+        envFrom:
+        - configMapRef:
+            name: wupfh-config
+        ports:
+          - containerPort: 8081
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 8081
+    targetPort: 8081
+  selector:
+    app: user
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper
+spec:
+  ports:
+  - port: 2181
+    targetPort: 2181
+  selector:
+    app: zookeeper
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: zookeeper
+spec:
+  serviceName: zookeeper
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      containers:
+      - name: zookeeper
+        image: confluentinc/cp-zookeeper:latest
+        env:
+        - name: ZOOKEEPER_CLIENT_PORT
+          value: "2181"
+        ports:
+        - containerPort: 2181
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kkafka
+spec:
+  type: ClusterIP
+  ports:
+  - port: 9092
+    targetPort: 9092
+  selector:
+    app: kkafka
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kkafka
+spec:
+  serviceName: kkafka
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kkafka
+  template:
+    metadata:
+      labels:
+        app: kkafka
+    spec:
+      containers:
+      - name: kkafka
+        image: confluentinc/cp-kafka:latest
+        env:
+        - name: "KAFKA_BROKER_ID"
+          value: "1"
+        - name: KAFKA_ZOOKEEPER_CONNECT
+          value: "zookeeper:2181"
+        - name: KAFKA_ADVERTISED_LISTENERS
+          value: "PLAINTEXT://localhost:29092,PLAINTEXT_HOST://kkafka:9092"
+        - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+          value: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+        - name: KAFKA_INTER_BROKER_LISTENER_NAME
+          value: "PLAINTEXT"
+        - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+          value: "1"
+        ports:
+        - containerPort: 9092
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification
+  template:
+    metadata:
+      labels:
+        app: notification
+    spec:
+      containers:
+      - name: notification
+        image: wuphf-dot-com-notification-service:local
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: wupfh-config
+        ports:
+        - containerPort: 8082
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: notification-autoscaler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: notification
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 8082
+    targetPort: 8082
+  selector:
+    app: notification
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+      - name: api-gateway
+        image: wuphf-dot-com-api-gateway:local
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: wupfh-config
+        ports:
+        - containerPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+  selector:
+    app: api-gateway
