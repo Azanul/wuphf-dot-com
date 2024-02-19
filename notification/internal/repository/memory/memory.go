@@ -9,8 +9,6 @@ import (
 	"github.com/Azanul/wuphf-dot-com/notification/pkg/model"
 )
 
-const ID_LENGTH = 64
-
 // Repository defines a memory notification repository
 type Repository struct {
 	sync.RWMutex
@@ -23,22 +21,22 @@ func New() *Repository {
 }
 
 // Post adds a new notification
-func (r *Repository) Post(_ context.Context, chatId string, n *model.Notification) (int, error) {
+func (r *Repository) Post(_ context.Context, chatID string, n *model.Notification) (int, error) {
 	r.Lock()
 	defer r.Unlock()
-	r.data[chatId] = append(r.data[chatId], n)
-	return len(r.data[chatId]) - 1, nil
+	r.data[chatID] = append(r.data[chatID], n)
+	return len(r.data[chatID]) - 1, nil
 }
 
 // Get notification by id
 func (r *Repository) Get(_ context.Context, id string) (*model.Notification, error) {
 	r.RLock()
 	defer r.RUnlock()
-	n, ok := r.data[id[:ID_LENGTH]]
+	n, ok := r.data[id[:repository.ID_LENGTH]]
 	if !ok {
 		return nil, repository.ErrNotFound
 	}
-	idx, err := strconv.Atoi(string(id[ID_LENGTH:]))
+	idx, err := strconv.Atoi(string(id[repository.ID_LENGTH:]))
 	if err != nil {
 		return nil, err
 	}
@@ -49,10 +47,10 @@ func (r *Repository) Get(_ context.Context, id string) (*model.Notification, err
 }
 
 // List notification by user ids list
-func (r *Repository) List(_ context.Context, chatId string) ([]*model.Notification, error) {
+func (r *Repository) List(_ context.Context, chatID string) ([]*model.Notification, error) {
 	r.RLock()
 	defer r.RUnlock()
-	n_list, ok := r.data[chatId]
+	n_list, ok := r.data[chatID]
 	if !ok {
 		return nil, repository.ErrNotFound
 	}

@@ -13,7 +13,7 @@ func TestMemoryRepository(t *testing.T) {
 	repo := New()
 
 	expectedNotification, _ := model.NewNotification("sender1", "receiver1", "testBody")
-	chatID := repository.RandStringBytesMaskImpr(ID_LENGTH)
+	chatID := repository.RandStringBytesMaskImpr(repository.ID_LENGTH)
 
 	// Test adding a notification
 	t.Run("TestPostNotification", func(t *testing.T) {
