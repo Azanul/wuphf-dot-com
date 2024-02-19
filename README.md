@@ -24,7 +24,6 @@ Each service runs independently within its own container and communicates throug
 - [X] API Gateway
 - [X] Docker Integration
 - [X] K8s Integration
-- [ ] Helm Chart
 - [ ] Istio
 - [ ] Tests
 - [ ] CI
