@@ -22,6 +22,7 @@ jobs:
       uses: goreleaser/goreleaser-action@v4
       with:
         release: main
+        args: release --clean
 
   docker:
     runs-on: ubuntu-latest
