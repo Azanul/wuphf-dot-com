@@ -22,7 +22,6 @@ jobs:
       uses: goreleaser/goreleaser-action@v4
       with:
         workdir: user
-        release: main
         args: release --clean --snapshot
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -31,7 +30,6 @@ jobs:
       uses: goreleaser/goreleaser-action@v4
       with:
         workdir: notification
-        release: main
         args: release --clean --snapshot
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -40,7 +38,6 @@ jobs:
       uses: goreleaser/goreleaser-action@v4
       with:
         workdir: api-gateway
-        release: main
         args: release --clean --snapshot
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
