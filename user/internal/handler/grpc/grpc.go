@@ -7,7 +7,7 @@ import (
 	"github.com/Azanul/wuphf-dot-com/user/internal/controller/user"
 	"github.com/Azanul/wuphf-dot-com/user/pkg/auth"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 )
 
 // Handler defines a user gRPC handler
