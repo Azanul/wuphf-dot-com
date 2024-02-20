@@ -10,6 +10,18 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
     - uses: actions/checkout@v3
 
@@ -17,6 +29,15 @@ jobs:
       uses: actions/setup-go@v4
       with:
         go-version: '1.21.3'
+
+    - name: Run go tests User service
+      run: go test ./user/... -v -cover
+
+    - name: Run go tests Notification service
+      run: go test ./notification/... -v -cover
+
+    - name: Run go tests API Gateway
+      run: go test ./api-gateway/... -v -cover
 
     - name: Build and test User service
       uses: goreleaser/goreleaser-action@v4
