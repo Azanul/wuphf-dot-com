@@ -23,6 +23,8 @@ jobs:
       with:
         release: main
         args: release --clean
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   docker:
     runs-on: ubuntu-latest
