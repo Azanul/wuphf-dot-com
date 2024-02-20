@@ -26,7 +26,7 @@ Each service runs independently within its own container and communicates throug
 - [X] K8s Integration
 - [ ] Istio
 - [ ] Tests
-- [ ] CI
+- [X] CI
 - [ ] Web UI
 - [ ] React Native UI
 
