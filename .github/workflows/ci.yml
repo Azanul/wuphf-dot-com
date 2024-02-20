@@ -35,6 +35,7 @@ jobs:
 
     - name: Create tables
       run: |
+        set -e
         PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -f notification/pkg/model/notification.sql
 
     - name: Run go tests User service
