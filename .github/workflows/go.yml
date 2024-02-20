@@ -18,9 +18,28 @@ jobs:
       with:
         go-version: '1.21.3'
 
-    - name: Build and Test
+    - name: Build and test User service
       uses: goreleaser/goreleaser-action@v4
       with:
+        workdir: user
+        release: main
+        args: release --clean --snapshot
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and test Notification service
+      uses: goreleaser/goreleaser-action@v4
+      with:
+        workdir: notification
+        release: main
+        args: release --clean --snapshot
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and test API Gateway
+      uses: goreleaser/goreleaser-action@v4
+      with:
+        workdir: api-gateway
         release: main
         args: release --clean --snapshot
       env:
