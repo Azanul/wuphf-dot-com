@@ -30,6 +30,13 @@ jobs:
       with:
         go-version: '1.21.3'
 
+    - name: Install psql
+      run: sudo apt-get -y install postgresql-client
+
+    - name: Create tables
+      run: |
+        psql -h localhost -U postgres -d postgres -f notification/pkg/model/notification.sql
+
     - name: Run go tests User service
       run: go test ./user/... -v -cover
 
