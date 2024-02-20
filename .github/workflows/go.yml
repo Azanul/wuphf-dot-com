@@ -21,24 +21,24 @@ jobs:
     - name: Build and test User service
       uses: goreleaser/goreleaser-action@v4
       with:
-        workdir: ./user
-        args: release --clean --snapshot
+        workdir: ./user/cmd
+        args: build --clean --snapshot
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build and test Notification service
       uses: goreleaser/goreleaser-action@v4
       with:
-        workdir: ./notification
-        args: release --clean --snapshot
+        workdir: ./notification/cmd
+        args: build --clean --snapshot
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build and test API Gateway
       uses: goreleaser/goreleaser-action@v4
       with:
-        workdir: ./api-gateway
-        args: release --clean --snapshot
+        workdir: ./api-gateway/cmd
+        args: build --clean --snapshot
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
