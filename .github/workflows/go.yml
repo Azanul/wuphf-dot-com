@@ -22,7 +22,7 @@ jobs:
       uses: goreleaser/goreleaser-action@v4
       with:
         release: main
-        args: release --clean
+        args: release --clean --snapshot
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
