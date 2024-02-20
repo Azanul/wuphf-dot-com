@@ -48,8 +48,21 @@ jobs:
     steps:
     - uses: actions/checkout@v3
   
-    - name: Build Docker Image
+    - name: Build User service Docker Image
       uses: docker/build-push-action@v3
       with:
+        context: "{{defaultContext}}:user"
+        push: false
+
+    - name: Build Notification service Docker Image
+      uses: docker/build-push-action@v3
+      with:
+        context: "{{defaultContext}}:notification"
+        push: false
+
+    - name: Build API Gateway Docker Image
+      uses: docker/build-push-action@v3
+      with:
+        context: "{{defaultContext}}:api-gateway"
         push: false
 
