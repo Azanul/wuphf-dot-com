@@ -37,6 +37,7 @@ jobs:
       run: |
         set -e
         PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -f notification/pkg/model/notification.sql
+        PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -f user/pkg/model/user.sql
 
     - name: Run go tests User service
       run: go test ./user/... -v -cover
