@@ -10,6 +10,7 @@ import (
 	"github.com/Azanul/wuphf-dot-com/notification/internal/controller/notification"
 	httphandler "github.com/Azanul/wuphf-dot-com/notification/internal/handler/http"
 	"github.com/Azanul/wuphf-dot-com/notification/internal/handler/kafka"
+	twiliosms "github.com/Azanul/wuphf-dot-com/notification/internal/integration/twilio-sms"
 	"github.com/Azanul/wuphf-dot-com/notification/internal/repository/memory"
 
 	"github.com/IBM/sarama"
@@ -20,7 +21,11 @@ func main() {
 
 	log.Println("Starting the notification service")
 	repo := memory.New()
+
+	twilioIntegration := twiliosms.New()
 	ctrl := notification.New(repo)
+	ctrl.AddIntegration(twilioIntegration)
+
 	h := httphandler.New(ctrl)
 
 	// Start Kafka consumer

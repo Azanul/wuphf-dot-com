@@ -3,5 +3,6 @@ CREATE TABLE notifications (
     chat_id VARCHAR(255),
     sender VARCHAR(255),
     receiver VARCHAR(255),
-    msg TEXT
+    msg TEXT,
+    reference TEXT
 );

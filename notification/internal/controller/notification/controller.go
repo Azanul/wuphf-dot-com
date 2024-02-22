@@ -3,6 +3,7 @@ package notification
 import (
 	"context"
 	"crypto/sha256"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"sort"
@@ -13,6 +14,11 @@ import (
 	"github.com/Azanul/wuphf-dot-com/notification/pkg/model"
 )
 
+type notificationIntegration interface {
+	Name() string
+	Notify(receiver, message string) (string, error)
+}
+
 type notificationRepository interface {
 	Get(ctx context.Context, id string) (*model.Notification, error)
 	Post(ctx context.Context, chatId string, n *model.Notification) (int, error)
@@ -21,21 +27,42 @@ type notificationRepository interface {
 
 // Controller defines a notification service controller
 type Controller struct {
-	repo notificationRepository
+	repo         notificationRepository
+	integrations []notificationIntegration
 }
 
 // New creates a notification service controller
 func New(repo notificationRepository) *Controller {
-	return &Controller{repo}
+	return &Controller{repo, []notificationIntegration{}}
+}
+
+func (c *Controller) AddIntegration(ni notificationIntegration) {
+	c.integrations = append(c.integrations, ni)
 }
 
 // Post new notification
 func (c *Controller) Post(ctx context.Context, sender, receiver, msg string) (string, error) {
-	notification, err := model.NewNotification(sender, receiver, msg)
+	chatId := generateChatID([]string{sender, receiver})
+
+	reference := map[string]string{}
+	for _, i := range c.integrations {
+		res, err := i.Notify(receiver, msg)
+		if err != nil {
+			reference[i.Name()] = res
+		} else {
+			reference[i.Name()] = err.Error()
+		}
+	}
+	refBytes, err := json.Marshal(reference)
 	if err != nil {
 		return "", err
 	}
-	chatId := generateChatID([]string{sender, receiver})
+
+	notification, err := model.NewNotification(sender, receiver, msg, string(refBytes))
+	if err != nil {
+		return "", err
+	}
+
 	i, err := c.repo.Post(ctx, chatId, notification)
 	if err != nil && errors.Is(err, repository.ErrNotFound) {
 		return "", repository.ErrNotFound
