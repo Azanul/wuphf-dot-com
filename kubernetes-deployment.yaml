@@ -133,6 +133,15 @@ spec:
         - containerPort: 9092
 
 ---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-secret
+data:
+  TWILIO_ACCOUNT_SID: ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  TWILIO_AUTH_TOKEN: your_auth_token
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:

@@ -25,6 +25,9 @@ services:
         condition: service_healthy
       user-service:
         condition: service_started
+    environment:
+      TWILIO_ACCOUNT_SID: ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      TWILIO_AUTH_TOKEN: your_auth_token
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
