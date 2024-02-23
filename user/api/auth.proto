@@ -6,6 +6,7 @@ package auth;
 message User {
     string id = 1;
     string email = 2;
+    string receivers = 3;
 }
 
 service AuthService {
