@@ -13,14 +13,17 @@ const WuphfForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="flex flex-col items-center space-y-4">
       <input
         type="text"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Send a WUPHF"
+        className="w-full p-2 border border-gray-300 rounded-lg"
       />
-      <button type="submit">Send</button>
+      <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+        Send
+      </button>
     </form>
   );
 };
