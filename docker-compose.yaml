@@ -10,6 +10,11 @@ services:
         condition: service_healthy
       user-service:
         condition: service_started
+    environment:
+      USER_SERVICE_URL: user-service
+      NOTIFICATION_SERVICE_URL: notification-service
+      AUTH_SERVICE_ADDR: user-service
+      KAFKA_BROKERS: kafka:9092
 
   user-service:
     build: ./user
@@ -28,6 +33,7 @@ services:
     environment:
       TWILIO_ACCOUNT_SID: ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
       TWILIO_AUTH_TOKEN: your_auth_token
+      KAFKA_BROKERS: kafka:9092
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest

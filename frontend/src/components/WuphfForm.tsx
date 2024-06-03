@@ -1,15 +1,28 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { sendWuphf } from '../features/wuphf/wuphfSlice';
 
 const WuphfForm: React.FC = () => {
   const [message, setMessage] = useState('');
-  const dispatch = useDispatch();
+  const [status, setStatus] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(sendWuphf(message));
-    setMessage('');
+    try {
+      const response = await fetch(`http://${process.env.REACT_APP_BASE_URL}/notification`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message }),
+      });
+      if (response.ok) {
+        setStatus('Message sent successfully');
+        setMessage('');
+      } else {
+        setStatus('Failed to send message');
+      }
+    } catch (error) {
+      setStatus('Error sending message');
+    }
   };
 
   return (
@@ -24,6 +37,7 @@ const WuphfForm: React.FC = () => {
       <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
         Send
       </button>
+      {status && <p>{status}</p>}
     </form>
   );
 };
