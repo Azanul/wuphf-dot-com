@@ -53,9 +53,7 @@ const AuthForm: React.FC<{ mode: 'login' | 'register' }> = ({ mode }) => {
                 setPassword(value);
                 break;
             case 'confirmPassword':
-                if (mode === 'register') {
-                    setConfirmPassword(value);
-                }
+                setConfirmPassword(value);
                 break;
             default:
                 break;
@@ -70,6 +68,7 @@ const AuthForm: React.FC<{ mode: 'login' | 'register' }> = ({ mode }) => {
                     <>
                         <p>Not registered yet? <Link to="/register">Signup</Link></p>
                         <input
+                            name="email"
                             type="email"
                             value={email}
                             onChange={handleInputChange}
@@ -77,6 +76,7 @@ const AuthForm: React.FC<{ mode: 'login' | 'register' }> = ({ mode }) => {
                             className="w-full p-2 border border-gray-300 rounded-lg"
                         />
                         <input
+                            name="password"
                             type="password"
                             value={password}
                             onChange={handleInputChange}
@@ -88,6 +88,7 @@ const AuthForm: React.FC<{ mode: 'login' | 'register' }> = ({ mode }) => {
                     <>
                         <p>Already have an account? <Link to="/login">Login</Link></p>
                         <input
+                            name="email"
                             type="email"
                             value={email}
                             onChange={handleInputChange}
@@ -95,6 +96,7 @@ const AuthForm: React.FC<{ mode: 'login' | 'register' }> = ({ mode }) => {
                             className="w-full p-2 border border-gray-300 rounded-lg"
                         />
                         <input
+                            name="password"
                             type="password"
                             value={password}
                             onChange={handleInputChange}
@@ -102,6 +104,7 @@ const AuthForm: React.FC<{ mode: 'login' | 'register' }> = ({ mode }) => {
                             className="w-full p-2 border border-gray-300 rounded-lg"
                         />
                         <input
+                            name="confirmPassword"
                             type="password"
                             value={confirmPassword}
                             onChange={handleInputChange}
