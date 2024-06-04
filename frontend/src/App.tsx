@@ -1,11 +1,26 @@
 import React from 'react';
-import Wuphf from './features/wuphf/Wuphf';
+import {
+  createBrowserRouter,
+  RouterProvider,
+} from "react-router-dom";
+import WuphfForm from './components/WuphfForm';
+import Login from './components/Login';
+import ProtectedRoute from './components/ProtectedRoute';
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <ProtectedRoute exact path="/" component={WuphfForm} />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  }
+]);
 
 const App: React.FC = () => {
   return (
-    <div className="App">
-      <Wuphf />
-    </div>
+    <RouterProvider router={router} />
   );
 };
 
