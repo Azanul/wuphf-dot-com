@@ -28,7 +28,8 @@ const AuthForm: React.FC<{ mode: 'login' | 'register' }> = ({ mode }) => {
             });
 
             if (response.ok) {
-                const token = response.headers.get('AUTHORIZATION');
+                const token = response.headers.get('Authorization');
+
                 if (token) {
                     localStorage.setItem('token', token);
                     navigate('/');
