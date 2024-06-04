@@ -13,9 +13,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ component: Component, .
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const response = await fetch(`${process.env.REACT_APP_BASE_URL}/user`, {
+                const token = localStorage.getItem('token') || '';
+                const user_id = localStorage.getItem('user_id') || '';
+                const response = await fetch(`${process.env.REACT_APP_BASE_URL}/user?id=${user_id}`, {
                     headers: {
-                        'Authorization': localStorage.getItem('token') || ''
+                        'Authorization': token
                     }
                 });
                 if (response.ok) {
@@ -38,7 +40,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ component: Component, .
         isAuthenticated ? (
             <Component {...rest} />
         ) : (
-            <Navigate to="/login" replace={true}/>
+            <Navigate to="/login" replace={true} />
         )
     );
 };

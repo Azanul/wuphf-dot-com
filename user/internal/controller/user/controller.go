@@ -52,28 +52,28 @@ func (c *Controller) Get(ctx context.Context, id string) (*model.User, error) {
 }
 
 // Login new user
-func (c *Controller) Login(ctx context.Context, email, password string) (string, error) {
+func (c *Controller) Login(ctx context.Context, email, password string) (string, string, error) {
 	id, err := c.repo.GetIDbyEmail(ctx, email)
 	if err != nil {
-		return "", repository.ErrNotFound
+		return "", "", repository.ErrNotFound
 	}
 
 	user, err := c.repo.Get(ctx, id)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	hashed_password, err := model.HashPassword(password)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	if user.Password == hashed_password {
-		return "", repository.ErrInvalidCredentials
+		return "", "", repository.ErrInvalidCredentials
 	}
 
 	token, err := auth.GenerateToken(id)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return token, nil
+	return user.ID, token, nil
 }

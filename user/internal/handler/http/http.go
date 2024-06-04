@@ -41,7 +41,7 @@ func (h *Handler) User(w http.ResponseWriter, req *http.Request) {
 	case http.MethodPost:
 		email := req.FormValue("email")
 		password := req.FormValue("password")
-		if m, err = h.ctrl.Post(req.Context(), email, password); err == nil {
+		if m, err = h.ctrl.Post(ctx, email, password); err == nil {
 			w.WriteHeader(http.StatusCreated)
 		}
 	}
@@ -105,11 +105,12 @@ func (h *Handler) Login(w http.ResponseWriter, req *http.Request) {
 
 	switch req.Method {
 	case http.MethodPost:
+		var token string
 		email := req.FormValue("email")
 		password := req.FormValue("password")
-		m, err = h.ctrl.Login(ctx, email, password)
+		m, token, err = h.ctrl.Login(ctx, email, password)
 		if err == nil {
-			w.Header().Add("AUTHORIZATION", m.(string))
+			w.Header().Add("AUTHORIZATION", token)
 			w.WriteHeader(http.StatusOK)
 		}
 	}
