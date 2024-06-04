@@ -4,7 +4,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import WuphfForm from './components/WuphfForm';
-import Login from './components/Login';
+import AuthForm from './components/AuthForm';
 import ProtectedRoute from './components/ProtectedRoute';
 
 const router = createBrowserRouter([
@@ -14,7 +14,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/login",
-    element: <Login />,
+    element: <AuthForm mode='login' />,
+  },
+  {
+    path: "/register",
+    element: <AuthForm mode='register' />,
   }
 ]);
 
