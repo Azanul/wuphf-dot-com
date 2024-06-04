@@ -11,9 +11,9 @@ services:
       user-service:
         condition: service_started
     environment:
-      USER_SERVICE_URL: user-service
-      NOTIFICATION_SERVICE_URL: notification-service
-      AUTH_SERVICE_ADDR: user-service
+      USER_SERVICE_URL: http://user-service:8081
+      NOTIFICATION_SERVICE_URL: http://notification-service:8082
+      AUTH_SERVICE_ADDR: http://user-service:8081
       KAFKA_BROKERS: kafka:9092
 
   user-service:

@@ -201,7 +201,7 @@ func main() {
 	gateway.AddRoute("/auth", userService, strings.HasPrefix, false, httputil.NewSingleHostReverseProxy(MustParse(userService)))
 	gateway.AddRoute("/notification", notificationService, strings.EqualFold, true, &KafkaMessageProducer{KafkaTopic: "notifications", Producer: kafkaProducer})
 
-	http.Handle("/", gateway)
+	http.Handle("/", CORSHandler(gateway))
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
@@ -211,4 +211,19 @@ func MustParse(backendURL string) *url.URL {
 		log.Fatalf("Failed to parse backend URL: %s", err)
 	}
 	return backend
+}
+
+func CORSHandler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
