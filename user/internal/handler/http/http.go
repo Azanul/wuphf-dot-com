@@ -112,6 +112,7 @@ func (h *Handler) Login(w http.ResponseWriter, req *http.Request) {
 		if err == nil {
 			w.Header().Add("AUTHORIZATION", token)
 			w.WriteHeader(http.StatusOK)
+			m = map[string]string{"user_id": m.(string)}
 		}
 	}
 

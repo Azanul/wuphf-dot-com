@@ -29,7 +29,7 @@ const AuthForm: React.FC<{ mode: 'login' | 'register' }> = ({ mode }) => {
 
             if (response.ok) {
                 const token = response.headers.get('Authorization');
-                const user_id = await response.text();
+                const user_id = JSON.parse(await response.text()).user_id;
 
                 if (token) {
                     localStorage.setItem('token', token);
