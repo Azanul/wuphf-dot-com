@@ -24,7 +24,7 @@ func main() {
 	h := httphandler.New(ctrl)
 	g := grpchandler.New(ctrl)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", 50051))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", 50051))
 	if err != nil {
 		log.Fatal("Failed to listen:", err)
 	}

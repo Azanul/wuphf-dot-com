@@ -150,6 +150,7 @@ func (gateway *Gateway) ValidateToken(ctx context.Context, token string) (*model
 		resp, err := client.ValidateToken(ctx, &gen.TokenRequest{Token: token})
 		if err != nil {
 			if shouldRetry(err) {
+				log.Println("retrying due to error: ", err)
 				continue
 			}
 			return nil, err

@@ -13,13 +13,14 @@ services:
     environment:
       USER_SERVICE_URL: http://user-service:8081
       NOTIFICATION_SERVICE_URL: http://notification-service:8082
-      AUTH_SERVICE_ADDR: http://user-service:8081
+      AUTH_SERVICE_ADDR: user-service:50051
       KAFKA_BROKERS: kafka:9092
 
   user-service:
     build: ./user
     ports:
       - "8081:8081"
+      - "50051:50051"
 
   notification-service:
     build: ./notification
