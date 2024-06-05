@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { sendWuphf } from '../features/wuphf/wuphfSlice';
 
 const WuphfForm: React.FC = () => {
+  const dispatch = useDispatch();
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState('');
 
@@ -18,6 +21,7 @@ const WuphfForm: React.FC = () => {
       if (response.ok) {
         setStatus('Message sent successfully');
         setMessage('');
+        dispatch(sendWuphf(message));
       } else {
         setStatus('Failed to send message');
       }
