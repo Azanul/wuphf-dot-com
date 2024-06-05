@@ -7,10 +7,11 @@ const WuphfForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://${process.env.REACT_APP_BASE_URL}/notification`, {
+      const response = await fetch(`${process.env.REACT_APP_BASE_URL}/notification`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem('token') || '',
         },
         body: JSON.stringify({ message }),
       });
