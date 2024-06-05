@@ -40,7 +40,7 @@ Each service runs independently within its own container and communicates throug
 - **Docker Compose:** Simplifies multi-container application development and testing.
 - **Kubernetes:** Manages containers in a production environment, automating deployment and scaling.
 
-*Could have used RabbitMQ as well, but wanted to use Kafka*
+*Could have used RabbitMQ as well which would be better choice for this use case, but wanted to use Kafka*
 
 ### Get Involved:
 
