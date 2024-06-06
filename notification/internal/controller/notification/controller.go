@@ -47,7 +47,7 @@ func (c *Controller) Post(ctx context.Context, sender, receiver, msg string) (st
 	reference := map[string]string{}
 	for _, i := range c.integrations {
 		res, err := i.Notify(receiver, msg)
-		if err != nil {
+		if err == nil {
 			reference[i.Name()] = res
 		} else {
 			reference[i.Name()] = err.Error()

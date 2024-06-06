@@ -69,7 +69,7 @@ func (h *Handler) History(w http.ResponseWriter, req *http.Request) {
 	case http.MethodGet:
 		id := req.FormValue("chatId")
 		if m, err = h.ctrl.List(req.Context(), id); err == nil {
-			w.WriteHeader(http.StatusCreated)
+			w.WriteHeader(http.StatusOK)
 		}
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
