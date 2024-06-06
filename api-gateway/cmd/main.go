@@ -201,6 +201,7 @@ func main() {
 	gateway.AddRoute("/user", userService, strings.EqualFold, false, httputil.NewSingleHostReverseProxy(MustParse(userService)))
 	gateway.AddRoute("/auth", userService, strings.HasPrefix, false, httputil.NewSingleHostReverseProxy(MustParse(userService)))
 	gateway.AddRoute("/notification", notificationService, strings.EqualFold, true, &KafkaMessageProducer{KafkaTopic: "notifications", Producer: kafkaProducer})
+	gateway.AddRoute("/history", notificationService, strings.EqualFold, true, httputil.NewSingleHostReverseProxy(MustParse(notificationService)))
 
 	http.Handle("/", CORSHandler(gateway))
 	log.Fatal(http.ListenAndServe(":8080", nil))
