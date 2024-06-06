@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { sendWuphf } from '../features/wuphf/wuphfSlice';
 
-type Props = { receiver_id: string }
+type Props = { chatId: string, receiver_id: string }
 
 const WuphfForm: React.FC<Props> = (props) => {
   const dispatch = useDispatch();
@@ -23,7 +23,7 @@ const WuphfForm: React.FC<Props> = (props) => {
       if (response.ok) {
         setStatus('Message sent successfully');
         setMessage('');
-        dispatch(sendWuphf(message));
+        dispatch(sendWuphf({chatId: props.chatId, message: message}));
       } else {
         setStatus('Failed to send message');
       }

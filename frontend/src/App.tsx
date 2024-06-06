@@ -3,14 +3,14 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import Wuphf from './features/wuphf/Wuphf';
 import AuthForm from './components/AuthForm';
 import ProtectedRoute from './components/ProtectedRoute';
+import ChatList from './components/ChatList';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <ProtectedRoute exact path="/" component={Wuphf} />,
+    element: <ProtectedRoute exact path="/" component={ChatList} />,
   },
   {
     path: "/login",
