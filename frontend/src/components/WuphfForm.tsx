@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { sendWuphf } from '../features/wuphf/wuphfSlice';
 
-const WuphfForm: React.FC = () => {
+type Props = { receiver_id: string }
+
+const WuphfForm: React.FC<Props> = (props) => {
   const dispatch = useDispatch();
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState('');
@@ -16,7 +18,7 @@ const WuphfForm: React.FC = () => {
           'Content-Type': 'application/json',
           'Authorization': localStorage.getItem('token') || '',
         },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ sender: localStorage.getItem('user_id'), receiver: props.receiver_id, msg: message }),
       });
       if (response.ok) {
         setStatus('Message sent successfully');
@@ -48,3 +50,4 @@ const WuphfForm: React.FC = () => {
 };
 
 export default WuphfForm;
+export type { Props };

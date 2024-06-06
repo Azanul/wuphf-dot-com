@@ -5,6 +5,7 @@ interface ProtectedRouteProps {
     component: React.ComponentType<any>;
     exact?: boolean;
     path: string;
+    [key: string]: any;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ component: Component, ...rest }) => {
