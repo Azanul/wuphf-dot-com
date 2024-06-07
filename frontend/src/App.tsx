@@ -6,11 +6,16 @@ import {
 import AuthForm from './components/AuthForm';
 import ProtectedRoute from './components/ProtectedRoute';
 import ChatList from './components/ChatList';
+import Wuphf from './features/wuphf/Wuphf';
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <ProtectedRoute exact path="/" component={ChatList} />,
+  },
+  {
+    path: "/chat/:chatId",
+    element: <ProtectedRoute path="/chat" component={Wuphf} />,
   },
   {
     path: "/login",

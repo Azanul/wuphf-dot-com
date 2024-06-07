@@ -1,6 +1,7 @@
 import React from 'react';
 
 interface ChatItemProps {
+  itemKey: React.Key;
   chat: {
     id: string;
     name: string;
@@ -8,9 +9,9 @@ interface ChatItemProps {
   onSelectChat: (chatId: string) => void;
 }
 
-const ChatItem: React.FC<ChatItemProps> = ({ chat, onSelectChat }) => {
+const ChatItem: React.FC<ChatItemProps> = ({ itemKey, chat, onSelectChat }) => {
   return (
-    <li onClick={() => onSelectChat(chat.id)}>
+    <li key={itemKey} onClick={() => onSelectChat(chat.id)} className='bg-green-100 p-4 m-1'>
       {chat.name}
     </li>
   );

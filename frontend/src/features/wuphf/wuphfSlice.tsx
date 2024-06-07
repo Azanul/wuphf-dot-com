@@ -26,7 +26,7 @@ export const fetchChats = createAsyncThunk('wuphf/fetchChats', async () => {
   return await response.json();
 });
 
-export const fetchMessages = createAsyncThunk('wuphf/fetchMessages', async (chatId) => {
+export const fetchMessages = createAsyncThunk('wuphf/fetchMessages', async (chatId: string) => {
   const response = await fetch(`${process.env.REACT_APP_BASE_URL}/history?chatId=${chatId}`, {
     headers: {
       'Authorization': localStorage.getItem('token') || '',

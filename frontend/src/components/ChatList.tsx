@@ -3,15 +3,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchChats } from '../features/wuphf/wuphfSlice';
 import ChatItem from './ChatItem';
 import { RootState, AppDispatch } from '../app/store';
+import { useNavigate } from 'react-router-dom';
 
-interface ChatListProps {
-  onSelectChat: (chatId: string) => void;
-}
-
-const ChatList: React.FC<ChatListProps> = ({ onSelectChat }) => {
+const ChatList: React.FC = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const chats = useSelector((state: RootState) => state.wuphf.chats);
   const chatStatus = useSelector((state: RootState) => state.wuphf.error);
+
+  const handleSelectChat = (chatId: string) => {
+    navigate(`/chat/${chatId}`);
+  };
 
   useEffect(() => {
     if (chatStatus === null) {
@@ -29,8 +31,8 @@ const ChatList: React.FC<ChatListProps> = ({ onSelectChat }) => {
 
   return (
     <ul>
-      {chats.map((chat) => (
-        <ChatItem key={chat.chatId} chat={{id: chat.chatId, name: chat.chatId}} onSelectChat={onSelectChat} />
+      {chats.map((chat, idx) => (
+        <ChatItem key={idx} itemKey={idx} chat={{id: chat.chatId, name: chat.chatId}} onSelectChat={handleSelectChat} />
       ))}
     </ul>
   );
