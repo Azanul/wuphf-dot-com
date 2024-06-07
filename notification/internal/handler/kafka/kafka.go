@@ -32,11 +32,21 @@ func (c Handler) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.Con
 		sess.Commit()
 		n, err := parseMultipartFormData(msg.Value)
 		if err == nil {
-			id, err := c.ctrl.Post(context.TODO(), n["sender"], n["receiver"], n["msg"])
-			if err != nil {
-				log.Printf("Error creating notification: %v\n", err)
+			if _, ok := n["chat_id"]; ok {
+				id, err := c.ctrl.Post(context.TODO(), n["sender"].(string), n["chat_id"].(string), n["msg"].(string))
+				if err != nil {
+					log.Printf("Error creating notification: %v\n", err)
+				} else {
+					log.Printf("Notification created: %s\n", id)
+				}
 			} else {
-				log.Printf("Notification created: %s\n", id)
+				receivers, ok := n["receivers"].([]string)
+				if !ok {
+					receivers = []string{n["receivers"].(string)}
+				}
+
+				id := c.ctrl.PostChat(context.TODO(), n["sender"].(string), receivers)
+				log.Printf("Chat created: %s\n", id)
 			}
 		} else {
 			log.Printf("Error unmarshaling message: %v\n", err)
@@ -46,8 +56,8 @@ func (c Handler) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.Con
 }
 
 // parseMultipartFormData parses the multipart form-data message and returns a map of form values.
-func parseMultipartFormData(message []byte) (map[string]string, error) {
-	formValues := map[string]string{}
+func parseMultipartFormData(message []byte) (map[string]interface{}, error) {
+	formValues := map[string]interface{}{}
 	reader := multipart.NewReader(bytes.NewReader(message), "--------------------------")
 	for {
 		part, err := reader.NextPart()
@@ -68,7 +78,19 @@ func parseMultipartFormData(message []byte) (map[string]string, error) {
 			return nil, err
 		}
 		name := params["name"]
-		formValues[name] = buf.String()
+		value := buf.String()
+		if existingValue, exists := formValues[name]; exists {
+			switch v := existingValue.(type) {
+			case string:
+				formValues[name] = []string{v, value}
+			case []string:
+				formValues[name] = append(v, value)
+			default:
+				return nil, errors.New("unsupported type in form values")
+			}
+		} else {
+			formValues[name] = value
+		}
 
 		part.Close()
 	}

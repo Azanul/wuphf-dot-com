@@ -28,6 +28,8 @@ func main() {
 
 	h := httphandler.New(ctrl)
 
+	topics := []string{"chats", "notifications"}
+
 	// Start Kafka consumer
 	go func() {
 		ctx := context.Background()
@@ -39,9 +41,8 @@ func main() {
 		}
 		defer consumerGroup.Close()
 
-		topic := "notifications"
 		consumer := kafka.New(ctrl)
-		err = consumerGroup.Consume(ctx, []string{topic}, consumer)
+		err = consumerGroup.Consume(ctx, topics, consumer)
 		if err != nil {
 			log.Fatalf("Error consuming topic: %v", err)
 		}
@@ -52,7 +53,7 @@ func main() {
 	http.Handle("/history", http.HandlerFunc(h.History))
 
 	if err := http.ListenAndServe(":8082", nil); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	<-make(chan struct{})

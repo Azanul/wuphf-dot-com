@@ -21,6 +21,11 @@ services:
     ports:
       - "8081:8081"
       - "50051:50051"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKERS: kafka:9092
 
   notification-service:
     build: ./notification
@@ -43,7 +48,7 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - 2181:2181
-    
+
   kafka:
     image: confluentinc/cp-kafka:latest
     depends_on:
@@ -58,7 +63,14 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     healthcheck:
-      test: ["CMD", "kafka-topics", "--list", "--bootstrap-server", "kafka:29092"]
+      test:
+        [
+          "CMD",
+          "kafka-topics",
+          "--list",
+          "--bootstrap-server",
+          "kafka:29092"
+        ]
       start_period: 40s
       interval: 5s
       timeout: 10s

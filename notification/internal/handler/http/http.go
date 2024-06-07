@@ -73,7 +73,6 @@ func (h *Handler) History(w http.ResponseWriter, req *http.Request) {
 			if m, err = h.ctrl.ListChats(req.Context(), id); err == nil {
 				w.WriteHeader(http.StatusOK)
 			}
-			log.Println(m, err)
 		} else {
 			if m, err = h.ctrl.List(req.Context(), id); err == nil {
 				w.WriteHeader(http.StatusOK)

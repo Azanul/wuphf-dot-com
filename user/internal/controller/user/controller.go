@@ -1,12 +1,19 @@
 package user
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"fmt"
+	"log"
+	"mime/multipart"
+	"net/textproto"
+	"reflect"
 
 	"github.com/Azanul/wuphf-dot-com/user/internal/repository"
 	"github.com/Azanul/wuphf-dot-com/user/pkg/auth"
 	"github.com/Azanul/wuphf-dot-com/user/pkg/model"
+	"github.com/IBM/sarama"
 )
 
 type userRepository interface {
@@ -15,14 +22,22 @@ type userRepository interface {
 	GetIDbyEmail(ctx context.Context, email string) (string, error)
 }
 
+// TODO: Unify this type with the one in api-gateway
+// KafkaMessageProducer represents a Kafka message producer handler
+type KafkaMessageProducer struct {
+	KafkaTopic string
+	Producer   sarama.AsyncProducer
+}
+
 // Controller defines a user service controller
 type Controller struct {
-	repo userRepository
+	repo          userRepository
+	kafkaProducer KafkaMessageProducer
 }
 
 // New creates a user service controller
-func New(repo userRepository) *Controller {
-	return &Controller{repo}
+func New(repo userRepository, kafkaProducer KafkaMessageProducer) *Controller {
+	return &Controller{repo, kafkaProducer}
 }
 
 // Post new user
@@ -39,6 +54,17 @@ func (c *Controller) Post(ctx context.Context, email, password string) (string, 
 	if err != nil && errors.Is(err, repository.ErrNotFound) {
 		return "", repository.ErrNotFound
 	}
+
+	message, err := createMultipartFormData(map[string]any{"sender": user.ID, "receivers": []string{user.ID}})
+	if err != nil {
+		log.Fatalf("Failed to create multipart form data: %v", err)
+	}
+	c.kafkaProducer.Producer.BeginTxn()
+	c.kafkaProducer.Producer.Input() <- &sarama.ProducerMessage{
+		Topic: c.kafkaProducer.KafkaTopic,
+		Value: sarama.StringEncoder(message),
+	}
+
 	return user.ID, err
 }
 
@@ -76,4 +102,44 @@ func (c *Controller) Login(ctx context.Context, email, password string) (string,
 	}
 
 	return user.ID, token, nil
+}
+
+func createMultipartFormData(fields map[string]any) (string, error) {
+	var b bytes.Buffer
+	writer := multipart.NewWriter(&b)
+	if err := writer.SetBoundary("--------------------------"); err != nil {
+		return "", err
+	}
+
+	for key, val := range fields {
+		h := make(textproto.MIMEHeader)
+		h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"`, key))
+
+		v := reflect.ValueOf(val)
+		switch v.Kind() {
+		case reflect.String:
+			part, err := writer.CreatePart(h)
+			if err != nil {
+				return "", err
+			}
+			part.Write([]byte(val.(string)))
+		case reflect.Slice:
+			for i := 0; i < v.Len(); i++ {
+				part, err := writer.CreatePart(h)
+				if err != nil {
+					return "", err
+				}
+				part.Write([]byte(v.Index(i).Interface().(string)))
+			}
+		default:
+			return "", fmt.Errorf("unsupported type for field %s", key)
+		}
+	}
+
+	err := writer.Close()
+	if err != nil {
+		return "", err
+	}
+
+	return b.String(), nil
 }
