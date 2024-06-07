@@ -22,21 +22,14 @@ type userRepository interface {
 	GetIDbyEmail(ctx context.Context, email string) (string, error)
 }
 
-// TODO: Unify this type with the one in api-gateway
-// KafkaMessageProducer represents a Kafka message producer handler
-type KafkaMessageProducer struct {
-	KafkaTopic string
-	Producer   sarama.AsyncProducer
-}
-
 // Controller defines a user service controller
 type Controller struct {
 	repo          userRepository
-	kafkaProducer KafkaMessageProducer
+	kafkaProducer sarama.AsyncProducer
 }
 
 // New creates a user service controller
-func New(repo userRepository, kafkaProducer KafkaMessageProducer) *Controller {
+func New(repo userRepository, kafkaProducer sarama.AsyncProducer) *Controller {
 	return &Controller{repo, kafkaProducer}
 }
 
@@ -59,9 +52,18 @@ func (c *Controller) Post(ctx context.Context, email, password string) (string, 
 	if err != nil {
 		log.Fatalf("Failed to create multipart form data: %v", err)
 	}
-	c.kafkaProducer.Producer.BeginTxn()
-	c.kafkaProducer.Producer.Input() <- &sarama.ProducerMessage{
-		Topic: c.kafkaProducer.KafkaTopic,
+	c.kafkaProducer.BeginTxn()
+	c.kafkaProducer.Input() <- &sarama.ProducerMessage{
+		Topic: "chats",
+		Value: sarama.StringEncoder(message),
+	}
+
+	message, err = createMultipartFormData(map[string]any{"sender": user.ID, "chat_id": "", "msg": "Wuphf"})
+	if err != nil {
+		log.Fatalf("Failed to create multipart form data: %v", err)
+	}
+	c.kafkaProducer.Input() <- &sarama.ProducerMessage{
+		Topic: "notifications",
 		Value: sarama.StringEncoder(message),
 	}
 

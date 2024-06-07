@@ -60,6 +60,9 @@ func (c *Controller) PostChat(ctx context.Context, sender string, receivers []st
 
 // Post new notification
 func (c *Controller) Post(ctx context.Context, sender, chatId, msg string) (string, error) {
+	if chatId == "" {
+		chatId = generateChatID([]string{sender, sender})
+	}
 	receivers, err := c.repo.ListUsers(ctx, chatId)
 	if err != nil {
 		return "", err

@@ -43,7 +43,7 @@ func main() {
 	}()
 
 	repo := memory.New()
-	ctrl := user.New(repo, user.KafkaMessageProducer{KafkaTopic: "chats", Producer: kafkaProducer})
+	ctrl := user.New(repo, kafkaProducer)
 
 	h := httphandler.New(ctrl)
 	g := grpchandler.New(ctrl)
