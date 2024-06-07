@@ -12,12 +12,17 @@ import (
 // Repository defines a memory notification repository
 type Repository struct {
 	sync.RWMutex
-	data map[string][]*model.Notification
+	data      map[string][]*model.Notification
+	userChats map[string][]string
+	chatUsers map[string][]string
 }
 
 // New creates a new memory repository
 func New() *Repository {
-	return &Repository{data: map[string][]*model.Notification{}}
+	return &Repository{
+		data:      map[string][]*model.Notification{},
+		userChats: map[string][]string{},
+	}
 }
 
 // Post adds a new notification
@@ -46,7 +51,7 @@ func (r *Repository) Get(_ context.Context, id string) (*model.Notification, err
 	return n[idx], nil
 }
 
-// List notification by user ids list
+// List notification by chat id
 func (r *Repository) List(_ context.Context, chatID string) ([]*model.Notification, error) {
 	r.RLock()
 	defer r.RUnlock()
@@ -55,4 +60,34 @@ func (r *Repository) List(_ context.Context, chatID string) ([]*model.Notificati
 		return nil, repository.ErrNotFound
 	}
 	return n_list, nil
+}
+
+// AssociateUserWithChat associates a user with a chat
+func (r *Repository) AssociateUserWithChat(_ context.Context, userID, chatID string) {
+	r.Lock()
+	defer r.Unlock()
+	r.userChats[userID] = append(r.userChats[userID], chatID)
+	r.chatUsers[chatID] = append(r.chatUsers[chatID], userID)
+}
+
+// ListChats retrieves chat ids for a given user id
+func (r *Repository) ListChats(_ context.Context, userID string) ([]string, error) {
+	r.RLock()
+	defer r.RUnlock()
+	chatIDs, ok := r.userChats[userID]
+	if !ok {
+		return nil, repository.ErrNotFound
+	}
+	return chatIDs, nil
+}
+
+// ListUsers retrieves user ids for a given chat id
+func (r *Repository) ListUsers(_ context.Context, chatID string) ([]string, error) {
+	r.RLock()
+	defer r.RUnlock()
+	userIDs, ok := r.chatUsers[chatID]
+	if !ok {
+		return nil, repository.ErrNotFound
+	}
+	return userIDs, nil
 }
