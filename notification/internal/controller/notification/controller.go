@@ -49,6 +49,9 @@ func (c *Controller) PostChat(ctx context.Context, sender string, receivers []st
 
 	c.repo.AssociateUserWithChat(ctx, sender, chatId)
 	for _, receiver := range receivers {
+		if sender == receiver {
+			continue
+		}
 		c.repo.AssociateUserWithChat(ctx, receiver, chatId)
 	}
 
