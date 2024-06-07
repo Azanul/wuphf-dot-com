@@ -22,6 +22,7 @@ func New() *Repository {
 	return &Repository{
 		data:      map[string][]*model.Notification{},
 		userChats: map[string][]string{},
+		chatUsers: map[string][]string{},
 	}
 }
 
