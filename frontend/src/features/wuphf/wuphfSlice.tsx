@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-type chat = { chatId: string, messages: string[] };
+type chat = { chatId: string, messages: any[] };
 
 interface WuphfState {
   chats: chat[];
@@ -35,7 +35,8 @@ export const fetchMessages = createAsyncThunk('wuphf/fetchMessages', async (chat
   if (!response.ok) {
     throw new Error('Failed to fetch chats');
   }
-  return await response.json();
+  const messages = await response.json();
+  return { chatId, messages };
 });
 
 const wuphfSlice = createSlice({
@@ -44,10 +45,7 @@ const wuphfSlice = createSlice({
   reducers: {
     sendWuphf: (state, action: PayloadAction<{ chatId: string; message: string }>) => {
       const { chatId, message } = action.payload;
-      const chat = state.chats.find((chat) => chat.chatId === chatId);
-      if (chat) {
-        chat.messages.push(message);
-      }
+      state.chats.find((chat) => chat.chatId === chatId)?.messages.push({sender: localStorage.getItem('user_id'), msg: message});
     },
   },
   extraReducers: (builder) => {
@@ -70,7 +68,13 @@ const wuphfSlice = createSlice({
       })
       .addCase(fetchMessages.fulfilled, (state, action) => {
         state.loading = false;
-        state.chats = action.payload;
+        const updatedChat = action.payload;
+        const chatIndex = state.chats.findIndex(chat => chat.chatId === updatedChat.chatId);
+        if (chatIndex >= 0) {
+          state.chats[chatIndex] = updatedChat;
+        } else {
+          state.chats.push(updatedChat);
+        }
       })
       .addCase(fetchMessages.rejected, (state, action) => {
         state.loading = false;

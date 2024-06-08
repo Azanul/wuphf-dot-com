@@ -8,7 +8,7 @@ import { useParams } from 'react-router-dom';
 const Wuphf: React.FC = () => {
   const { chatId } = useParams();
   const dispatch = useDispatch<AppDispatch>();
-  const messages = useSelector((state: RootState) => state.wuphf.chats);
+  const messages = useSelector((state: RootState) => state.wuphf.chats.find((chat) => chat.chatId === chatId)?.messages);
   const loading = useSelector((state: RootState) => state.wuphf.loading);
   const error = useSelector((state: RootState) => state.wuphf.error);
 
@@ -16,7 +16,6 @@ const Wuphf: React.FC = () => {
     dispatch(fetchMessages(chatId || ''));
   }, [chatId, dispatch]);
 
-  console.log(messages)
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold text-center mb-6">WUPHF.com</h1>
