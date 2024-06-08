@@ -1,13 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { sendWuphf } from '../features/wuphf/wuphfSlice';
 
-type Props = { chatId: string }
+type Props = { chatId: string };
 
 const WuphfForm: React.FC<Props> = (props) => {
   const dispatch = useDispatch();
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState('');
+
+  useEffect(() => {
+    if (status) {
+      const timer = setTimeout(() => {
+        setStatus('');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [status]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +32,7 @@ const WuphfForm: React.FC<Props> = (props) => {
       if (response.ok) {
         setStatus('Message sent successfully');
         setMessage('');
-        dispatch(sendWuphf({chatId: props.chatId, message: message}));
+        dispatch(sendWuphf({ chatId: props.chatId, message: message }));
       } else {
         setStatus('Failed to send message');
       }
