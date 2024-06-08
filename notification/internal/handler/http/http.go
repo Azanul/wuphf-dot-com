@@ -9,6 +9,7 @@ import (
 
 	"github.com/Azanul/wuphf-dot-com/notification/internal/controller/notification"
 	"github.com/Azanul/wuphf-dot-com/notification/internal/repository"
+	"github.com/Azanul/wuphf-dot-com/notification/pkg/model"
 )
 
 // Handler defines a notification HTTP handler
@@ -78,6 +79,11 @@ func (h *Handler) History(w http.ResponseWriter, req *http.Request) {
 			if m, err = h.ctrl.List(req.Context(), id); err == nil {
 				w.WriteHeader(http.StatusOK)
 			}
+			op := []map[string]any{}
+			for _, n := range m.([]*model.Notification) {
+				op = append(op, map[string]any{"msg": n.Msg, "sender": n.Sender})
+			}
+			m = op
 		}
 
 	default:
