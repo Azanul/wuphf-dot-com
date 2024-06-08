@@ -3,7 +3,8 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"log"
+	"os"
+	"strings"
 	"testing"
 
 	_ "github.com/lib/pq"
@@ -19,13 +20,46 @@ func setupTestDB() (*sql.DB, error) {
 	if err := db.Ping(); err != nil {
 		return nil, err
 	}
+	sqlBytes, err := os.ReadFile("../../../pkg/model/user.sql")
+	if err != nil {
+		return nil, err
+	}
+
+	sql := string(sqlBytes)
+	statements := strings.Split(sql, ";")
+	for _, statement := range statements {
+		if strings.TrimSpace(statement) == "" {
+			continue
+		}
+		_, err := db.Exec(statement)
+		if err != nil && !strings.Contains(err.Error(), "already exists") {
+			return nil, err
+		}
+	}
+
 	return db, nil
 }
 
-func teardownTestDB(db *sql.DB) {
+func teardownTestDB(db *sql.DB) error {
+	// Close the database connection
 	if err := db.Close(); err != nil {
-		log.Fatalf("Error closing test database: %v\n", err)
+		return err
 	}
+
+	// Reopen the database connection to perform cleanup operations
+	db, err := sql.Open("postgres", "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	// Execute SQL statements to clear the database
+	_, err = db.Exec("DROP SCHEMA public CASCADE; CREATE SCHEMA public;")
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func TestUserRepository(t *testing.T) {
