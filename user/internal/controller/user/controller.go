@@ -30,18 +30,18 @@ func New(repo userRepository, kafkaProducer sarama.AsyncProducer) *Controller {
 }
 
 // Post new user
-func (c *Controller) Post(ctx context.Context, email, password string) (string, error) {
+func (c *Controller) Post(ctx context.Context, email, password string) (string, string, error) {
 	user, err := model.NewUser(email, password)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	_, err = c.repo.GetIDbyEmail(ctx, email)
 	if err == nil {
-		return "", repository.ErrDuplicate
+		return "", "", repository.ErrDuplicate
 	}
 	err = c.repo.Post(ctx, user)
-	if err != nil && errors.Is(err, repository.ErrNotFound) {
-		return "", repository.ErrNotFound
+	if err != nil {
+		return "", "", err
 	}
 
 	message, err := json.Marshal(map[string]any{"sender": user.ID, "chat_id": "", "msg": "Wuphf"})
@@ -53,7 +53,12 @@ func (c *Controller) Post(ctx context.Context, email, password string) (string, 
 		Value: sarama.StringEncoder(message),
 	}
 
-	return user.ID, err
+	token, err := auth.GenerateToken(user.ID)
+	if err != nil {
+		return "", "", err
+	}
+
+	return user.ID, token, nil
 }
 
 // Get returns user by id

@@ -32,7 +32,7 @@ func (h *Handler) ValidateToken(ctx context.Context, req *gen.TokenRequest) (*ge
 		return auth.JWTKey, nil
 	})
 	if err != nil {
-		return &gen.TokenResponse{Valid: false}, nil
+		return &gen.TokenResponse{Valid: false}, err
 	}
 
 	if token.Valid {
@@ -41,7 +41,7 @@ func (h *Handler) ValidateToken(ctx context.Context, req *gen.TokenRequest) (*ge
 
 			user, err := h.ctrl.Get(ctx, userID)
 			if err != nil {
-				return &gen.TokenResponse{Valid: false}, nil
+				return &gen.TokenResponse{Valid: false}, err
 			}
 
 			return &gen.TokenResponse{Valid: true, User: &gen.User{Id: user.ID, Email: user.Email}}, nil
