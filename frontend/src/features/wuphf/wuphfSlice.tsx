@@ -14,16 +14,34 @@ const initialState: WuphfState = {
   error: null,
 };
 
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export const fetchChats = createAsyncThunk('wuphf/fetchChats', async () => {
-  const response = await fetch(`${process.env.REACT_APP_BASE_URL}/history?userId=${localStorage.getItem('user_id')}`, {
-    headers: {
-      'Authorization': localStorage.getItem('token') || '',
-    },
-  });
-  if (!response.ok) {
-    throw new Error('Failed to fetch chats');
+  let retries = 3;
+  let retryDelay = 2000;
+
+  for (let attempt = 0; attempt < retries; attempt++) {
+    const response = await fetch(`${process.env.REACT_APP_BASE_URL}/history?userId=${localStorage.getItem('user_id')}`,
+      {
+        headers: {
+          'Authorization': localStorage.getItem('token') || '',
+        }
+      });
+
+    if (response.ok) {
+      return await response.json();
+    }
+
+    if (response.status === 404) {
+      if (attempt < retries - 1) {
+        await delay(retryDelay);
+      } else {
+        throw new Error('Failed to fetch chats after multiple attempts');
+      }
+    } else {
+      throw new Error('Failed to fetch chats');
+    }
   }
-  return await response.json();
 });
 
 export const fetchMessages = createAsyncThunk('wuphf/fetchMessages', async (chatId: string) => {
@@ -45,7 +63,7 @@ const wuphfSlice = createSlice({
   reducers: {
     sendWuphf: (state, action: PayloadAction<{ chatId: string; message: string }>) => {
       const { chatId, message } = action.payload;
-      state.chats.find((chat) => chat.chatId === chatId)?.messages.push({sender: localStorage.getItem('user_id'), msg: message});
+      state.chats.find((chat) => chat.chatId === chatId)?.messages.push({ sender: localStorage.getItem('user_id'), msg: message });
     },
   },
   extraReducers: (builder) => {
