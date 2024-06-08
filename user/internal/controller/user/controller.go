@@ -1,14 +1,10 @@
 package user
 
 import (
-	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
-	"mime/multipart"
-	"net/textproto"
-	"reflect"
 
 	"github.com/Azanul/wuphf-dot-com/user/internal/repository"
 	"github.com/Azanul/wuphf-dot-com/user/pkg/auth"
@@ -48,19 +44,9 @@ func (c *Controller) Post(ctx context.Context, email, password string) (string, 
 		return "", repository.ErrNotFound
 	}
 
-	message, err := createMultipartFormData(map[string]any{"sender": user.ID, "receivers": []string{user.ID}})
+	message, err := json.Marshal(map[string]any{"sender": user.ID, "chat_id": "", "msg": "Wuphf"})
 	if err != nil {
-		log.Fatalf("Failed to create multipart form data: %v", err)
-	}
-	c.kafkaProducer.BeginTxn()
-	c.kafkaProducer.Input() <- &sarama.ProducerMessage{
-		Topic: "chats",
-		Value: sarama.StringEncoder(message),
-	}
-
-	message, err = createMultipartFormData(map[string]any{"sender": user.ID, "chat_id": "", "msg": "Wuphf"})
-	if err != nil {
-		log.Fatalf("Failed to create multipart form data: %v", err)
+		log.Fatalf("Failed to create json data: %v", err)
 	}
 	c.kafkaProducer.Input() <- &sarama.ProducerMessage{
 		Topic: "notifications",
@@ -104,44 +90,4 @@ func (c *Controller) Login(ctx context.Context, email, password string) (string,
 	}
 
 	return user.ID, token, nil
-}
-
-func createMultipartFormData(fields map[string]any) (string, error) {
-	var b bytes.Buffer
-	writer := multipart.NewWriter(&b)
-	if err := writer.SetBoundary("--------------------------"); err != nil {
-		return "", err
-	}
-
-	for key, val := range fields {
-		h := make(textproto.MIMEHeader)
-		h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"`, key))
-
-		v := reflect.ValueOf(val)
-		switch v.Kind() {
-		case reflect.String:
-			part, err := writer.CreatePart(h)
-			if err != nil {
-				return "", err
-			}
-			part.Write([]byte(val.(string)))
-		case reflect.Slice:
-			for i := 0; i < v.Len(); i++ {
-				part, err := writer.CreatePart(h)
-				if err != nil {
-					return "", err
-				}
-				part.Write([]byte(v.Index(i).Interface().(string)))
-			}
-		default:
-			return "", fmt.Errorf("unsupported type for field %s", key)
-		}
-	}
-
-	err := writer.Close()
-	if err != nil {
-		return "", err
-	}
-
-	return b.String(), nil
 }

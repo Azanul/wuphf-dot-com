@@ -1,13 +1,10 @@
 package kafka
 
 import (
-	"bytes"
 	"context"
-	"errors"
-	"io"
+	"encoding/json"
+	"fmt"
 	"log"
-	"mime"
-	"mime/multipart"
 
 	"github.com/Azanul/wuphf-dot-com/notification/internal/controller/notification"
 
@@ -30,7 +27,7 @@ func (c Handler) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.Con
 	for msg := range claim.Messages() {
 		sess.MarkMessage(msg, "")
 		sess.Commit()
-		n, err := parseMultipartFormData(msg.Value)
+		n, err := parseJSON(msg.Value)
 		if err == nil {
 			if _, ok := n["chat_id"]; ok {
 				id, err := c.ctrl.Post(context.TODO(), n["sender"].(string), n["chat_id"].(string), n["msg"].(string))
@@ -40,9 +37,10 @@ func (c Handler) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.Con
 					log.Printf("Notification created: %s\n", id)
 				}
 			} else {
-				receivers, ok := n["receivers"].([]string)
-				if !ok {
-					receivers = []string{n["receivers"].(string)}
+				receivers, err := parseReceivers(n["receivers"])
+				if err != nil {
+					log.Printf("Error parsing receivers: %v\n", err)
+					continue
 				}
 
 				id := c.ctrl.PostChat(context.TODO(), n["sender"].(string), receivers)
@@ -55,45 +53,31 @@ func (c Handler) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.Con
 	return nil
 }
 
-// parseMultipartFormData parses the multipart form-data message and returns a map of form values.
-func parseMultipartFormData(message []byte) (map[string]interface{}, error) {
-	formValues := map[string]interface{}{}
-	reader := multipart.NewReader(bytes.NewReader(message), "--------------------------")
-	for {
-		part, err := reader.NextPart()
-		if errors.Is(err, io.EOF) {
-			break
-		} else if err != nil {
-			return nil, err
-		}
-
-		var buf bytes.Buffer
-		if _, err := io.Copy(&buf, part); err != nil {
-			return nil, err
-		}
-
-		header := part.Header.Get("Content-Disposition")
-		_, params, err := mime.ParseMediaType(header)
-		if err != nil {
-			return nil, err
-		}
-		name := params["name"]
-		value := buf.String()
-		if existingValue, exists := formValues[name]; exists {
-			switch v := existingValue.(type) {
-			case string:
-				formValues[name] = []string{v, value}
-			case []string:
-				formValues[name] = append(v, value)
-			default:
-				return nil, errors.New("unsupported type in form values")
-			}
-		} else {
-			formValues[name] = value
-		}
-
-		part.Close()
+// parseJSON parses the JSON message and returns a map of values.
+func parseJSON(message []byte) (map[string]interface{}, error) {
+	var result map[string]interface{}
+	err := json.Unmarshal(message, &result)
+	if err != nil {
+		return nil, err
 	}
+	return result, nil
+}
 
-	return formValues, nil
+func parseReceivers(receivers interface{}) ([]string, error) {
+	var result []string
+	switch v := receivers.(type) {
+	case []interface{}:
+		for _, r := range v {
+			if str, ok := r.(string); ok {
+				result = append(result, str)
+			} else {
+				return nil, fmt.Errorf("invalid receiver type: %v", r)
+			}
+		}
+	case string:
+		result = []string{v}
+	default:
+		return nil, fmt.Errorf("unexpected type for receivers: %T", v)
+	}
+	return result, nil
 }
